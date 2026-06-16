@@ -44,14 +44,14 @@ public class LectureController {
         // 입력 항목 오류가 있다면 400 에러 발생
         if(errors.hasErrors()) {
 
-            return ResponseEntity.badRequest().body(new ErrorsResource(errors));
+            return getErrors(errors);
 
         }
         // 입력항목 유효성 체크하고 오류 있다면 400 에러 발생
         this.lectureValidator.validate(lectureReqDto, errors);
         if(errors.hasErrors()) {
 
-            return ResponseEntity.badRequest().body(new ErrorsResource(errors));
+            return getErrors(errors);
 
         }
         //ReqDTO -> entity로 변환
@@ -87,6 +87,10 @@ public class LectureController {
 
         return ResponseEntity.created(createUri).body(lectureResource);
 
+    }
+
+    private static ResponseEntity<ErrorsResource> getErrors(Errors errors) {
+        return ResponseEntity.badRequest().body(new ErrorsResource(errors));
     }
 
 }
