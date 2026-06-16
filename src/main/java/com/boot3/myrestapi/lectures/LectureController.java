@@ -1,0 +1,61 @@
+package com.boot3.myrestapi.lectures;
+
+import com.boot3.myrestapi.lectures.dto.LectureReqDto;
+import com.boot3.myrestapi.lectures.validator.LectureValidator;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.springframework.hateoas.MediaTypes;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.Errors;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.net.URI;
+
+@RestController
+@RequestMapping(value = "/api/lectures", produces = MediaTypes.HAL_JSON_VALUE)
+@RequiredArgsConstructor
+public class LectureController {
+//    @Autowired
+    private final LectureRepository lectureRepository;
+    private final ModelMapper modelMapper;
+    private final LectureValidator lectureValidator;
+
+
+    //constructor injection
+//    public LectureController(LectureRepository lectureRepository) {
+//        this.lectureRepository = lectureRepository;
+//    }
+
+
+
+    @PostMapping
+    public ResponseEntity createLecture(@RequestBody @Valid
+                                        LectureReqDto lectureReqDto, Errors errors) {
+        // 입력 항목 오류가 있다면 400 에러 발생
+        if(errors.hasErrors()) {
+
+            return ResponseEntity.badRequest().body(errors);
+
+        }
+        // 입력항목 유효성 체크하고 오류 있다면 400 에러 발생
+        this.lectureValidator.validate(lectureReqDto, errors);
+        if(errors.hasErrors()) {
+
+            return ResponseEntity.badRequest().body(errors);
+
+        }
+
+        Lecture lecture = modelMapper.map(lectureReqDto, Lecture.class);
+        Lecture addLecture = this.lectureRepository.save(lecture);
+        WebMvcLinkBuilder selfLinkBuilder = WebMvcLinkBuilder.linkTo(LectureController.class).slash(addLecture.getId());
+        URI createUri = selfLinkBuilder.toUri();
+        return ResponseEntity.created(createUri).body(addLecture);
+
+    }
+
+}
