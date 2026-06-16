@@ -123,8 +123,12 @@ public class LectureController {
         }
 
         Lecture lecture = optionalLecture.get();
-        LectureResDto lectureResDto = modelMapper.map(lecture, LectureResDto.class);
-        LectureResource lectureResource = new LectureResource(lectureResDto);
+//        LectureResDto lectureResDto = modelMapper.map(lecture, LectureResDto.class);
+//        LectureResource lectureResource = new LectureResource(lectureResDto);
+        // 이렇게 한줄로 작성 가능
+        LectureResource lectureResource =
+                new LectureResource(modelMapper.map(lecture, LectureResDto.class));
+        
         return ResponseEntity.ok(lectureResource);
 
     }
